@@ -1,16 +1,17 @@
-#include "AM_Device.h"
-#include "AM_Sensor.h"
+#include "AM_Relay.h"
 
-#include <thread>
-#include <iostream>
+#include <wiringPi.h>
 
-
-void func() {
-    std::cout << "Thread worked!!!" << std::endl;
-}
 
 int main(int argc, char*argv[]) {
-    std::thread t(func);
-    t.join();
+    wiringPiSetup();
+    IDevice* relay = new D_Relay(0);
+    while (1) {
+    relay->am_write(HIGH);
+    delay(1000);
+    relay->am_write(LOW);
+    delay(1000);
+    }
+    delete relay;
     return 0;
 }

@@ -3,13 +3,14 @@
 
 #include "AM_Device.h"
 
-class D_Relay : IDevice {
+class D_Relay : public IDevice {
 
+private:
+    int am_write(int voltage);
+    bool init();
 public:
-    D_Relay(int pin) : IDevice(pin) { }
+    D_Relay(int pin);
     ~D_Relay();
-    int init();
-    int am_write ();
 };
 
 #endif

@@ -1,17 +1,13 @@
 #ifndef AM_DEVICE_H
 #define AM_DEVICE_H
 
-class IDevice {
+#include "AM_Element.h"
 
-private:
-    int pin;
+class IDevice : public IElement {
 
 public:
-    IDevice(int tpin) : pin(tpin) {}
-    virtual ~IDevice() {};
-    virtual void init() = 0;
-    virtual int  am_write() = 0;
-    int getPin() { return pin; }
+    IDevice(int pin = -1) : IElement(pin) {}
+    virtual int am_write(int) = 0;
 };
 
 #endif
