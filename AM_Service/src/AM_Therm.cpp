@@ -5,16 +5,14 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <errno.h>
+#include <functional>
 
 #define BUFSIZE 128
 #define RESSIZE   5
 
 S_Therm::S_Therm(int pin, int interval) : 
-  ISensor(pin), timeInterval(interval) { 
-    if (init()) {
-        running = true;  
-    }
-    worker = std::thread(&S_Therm::startWork, this);
+  ISensor(pin, interval){
+    init_sensor(this, std::bind(&S_Therm::start_work, this));
 }
 
 S_Therm::~S_Therm() {
@@ -25,10 +23,11 @@ S_Therm::~S_Therm() {
 bool S_Therm::init() {
     
     // add dynamic /sys/device name finder
+    
     return true;
 }
 
-bool S_Therm::_am_read (int fd, float& value) {
+bool S_Therm::internal_read (int fd, float& value) {
 	int  ret;
 	char readBuf[BUFSIZE];
 	char resBuf[RESSIZE];
@@ -59,32 +58,32 @@ bool S_Therm::_am_read (int fd, float& value) {
 
 	value = static_cast<float>(atoi(resBuf)) / 1000;
     return true;
-
-	//printf("%.3f C\n",temp);
 }
 
 float S_Therm::am_read () {
+    std::lock_guard<std::mutex> l_lock(lock);
     return temperature;
 }
 
-void S_Therm::startWork() {
+void S_Therm::start_work() {
     int fd;
     float temperValue;
 
     while (running) {
-        fd = open(sensorFile, O_RDONLY);
+        fd = open(sensorFile.c_str(), O_RDONLY);
         if(fd == -1) {
 	    	perror("open device file error");
 	    	running = false;
             break;
 	    }
         
-        if (_am_read(fd, temperValue)) {
+        if (internal_read(fd, temperValue)) {
+            std::lock_guard<std::mutex> l_lock(lock);
             temperature = temperValue;     
         }
 
         close(fd);
             
-        delay(timeInterval);
+        sleep(timeInterval);
     }
 }

@@ -2,7 +2,7 @@
   'targets': [
     {
       'target_name': 'AM_SERVICE',
-      'cflags': ['-std=c++11', '-Wall',],
+      'cflags': ['-std=c++11', '-Wall', '-g',],
       'type': 'executable',
 
       'include_dirs' : ['AM_Service/include'],
